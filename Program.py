@@ -57,7 +57,9 @@ class EdgeArray:
 		found = False
 		for i in self.data:
 			if (i.source == Edge.source) and (i.target == Edge.target):
-				found == True
+				found = True
+			if (i.source == Edge.target) and (i.target == Edge.source):
+				found = True
 		if not found:
 			self.data.append(Edge)
 
@@ -67,12 +69,14 @@ class EdgeArray:
 		for i in self.data:
 			if (i.source == index):
 				list.append(i.target)
+			if (i.target == index):
+				list.append(i.source)
 		return list
 
 	# prints source, target, and weight of every Edge
 	def print(self):
 		for i in self.data:
-			print(i.source, '->', i.target, '; weight =', i.weight)
+			print(i.source, '<->', i.target, '; weight =', i.weight)
 
 # ---------- GLOBAL FUNCTIONS ----------
 # reading matrix from file
@@ -94,16 +98,14 @@ def Read(source):
 
 # add all vertices
 def FindVertices(matrix):
-	global Entrance, Exit, Vertices
+	global Vertices
 
 	for i in range(N):
 		if (matrix[i][0] == '0'):
-			Entrance = (i, 0)
+			Vertices.append(Vertex((i, 0)))
 		if (matrix[i][M-1] == '0'):
-			Exit = (i, (M-1))	
-	Vertices.append(Vertex(Entrance))
-	Vertices.append(Vertex(Exit))
-
+			Vertices.append(Vertex((i, M-1)))
+	
 	for i in range(1, N-1):
 		for j in range(1, M-1):
 			if (matrix[i][j] == '0'):
@@ -150,24 +152,16 @@ def FindEdges(matrix, traveled, currentPos, source, steps):
 
 
 
-
-
-
-
-
-
-
-
 # ---------- MAIN PROGRAM ----------
 Matrix = []					# matrix from file
 N = 0						# number of rows
 M = 0						# number of columns
-Entrance = ()				# (i,j) of entrance
-Exit = ()					# (i,j) of exit
 
-# array of vertices
 Vertices = VerticeArray()
 '''
+	index 0	-> entrance
+	index 1 -> exit
+
 	Vertices.len()				: returns length of array
 	Vertices.append(Vertex)		: adds a new vertex to Vertices, duplicates are ignored
 	Vertices.index(i)			: returns vertex at index i
@@ -175,7 +169,6 @@ Vertices = VerticeArray()
 	Vertices.print()			: prints list of vertices
 '''
 
-# array of edges
 Edges = EdgeArray()
 '''
 	Edges.len()					: returns length of array
