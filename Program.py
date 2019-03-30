@@ -205,6 +205,34 @@ def AStar(VerticeArray, EdgeArray, aStarSolution):
 			prioqueue.pop(0)
 			prioqueue.sort(key=takeFormula)	#sort prioqueue by f(n)
 
+# ---------- BFS ----------
+def BFS(VerticeArray, EdgeArray, BFSSolution):
+	queue = [] 		#queue : simpul hidup, list solusi
+	queue.append([Vertices.findIndex(Vertices.index(0)),[]]) #append entrance
+
+	dikunjungi = []
+	for i in VerticeArray.data:
+		dikunjungi.append(0)
+
+	final=False
+	#ambil elemen pertama di queue, cek solusi bukan
+	#untuk setiap elemen x di queue, ekspan lalu taruh di queue
+	#ulangi hingga solusi
+	while(not(final)):
+		if (queue[0][0] == 1):
+			final=True
+			for j in queue[0][1]:
+				BFSSolution.append(j)
+			BFSSolution.append(queue[0][0])
+		else:										#first element in queue isn't exit
+			dikunjungi[queue[0][0]]=1
+			solution = queue[0][1].copy()
+			solution.append(queue[0][0])
+			for i in EdgeArray.targetsFrom(queue[0][0]):
+				if(dikunjungi[i]==0):
+					queue.append([i, solution])
+			queue.pop(0)
+
 # ---------- MAIN PROGRAM ----------
 import math
 
@@ -243,7 +271,13 @@ Vertices.print()
 Edges.print()
 
 #debug A*
-aStarSolution = []	#solution list
+aStarSolution = []	#A* solution list
 
 AStar(Vertices, Edges, aStarSolution)
 print(aStarSolution)
+
+#debug BFS
+BFSSolution = []	#BFS solution list
+
+BFS(Vertices, Edges, BFSSolution)
+print(BFSSolution)
