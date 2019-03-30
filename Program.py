@@ -4,10 +4,13 @@ class Vertex:
 		self.position = position	# tuple of (i,j)
 	
 class Edge:
-	def __init__(self, source, target, weight):
+	def __init__(self, source, target, path):
 		self.source = source		# index of source vertex
 		self.target = target		# index of target vertex
-		self.weight = weight		# steps taken from source to vertex [0...n]; 0 on source, n on target
+		self.path = path			# path of (i,j) tuples from source to target
+	
+	def weight(self):
+		return len(self.path)
 
 class VerticeArray:
 	def __init__(self):
@@ -76,7 +79,8 @@ class EdgeArray:
 	# prints source, target, and weight of every Edge
 	def print(self):
 		for i in self.data:
-			print(i.source, '<->', i.target, '; weight =', i.weight)
+			print(i.source, '<->', i.target, '; weight =', i.weight())
+			print(i.path)
 
 # ---------- GLOBAL FUNCTIONS ----------
 # reading matrix from file
@@ -122,35 +126,66 @@ def FindVertices(matrix):
 					Vertices.append(Vertex((i,j)))
 
 # add all edges from one vertex
-def FindEdges(matrix, traveled, currentPos, source, steps):
+def FindEdges(matrix, traveled, currentPos, source):
 	global Edges
-	traveled.append(currentPos)
+
+	newTraveled = traveled.copy()
+	newTraveled.append(currentPos)
 	vertexIndex = Vertices.findIndex(currentPos)
 
 	i = currentPos[0]
 	j = currentPos[1]
 
-	if (vertexIndex != -999) and (vertexIndex != source):
-		Edges.append(Edge(source, vertexIndex, steps))
-	else:
+	if (vertexIndex == source):
+		down = '1'
+		up = '1'
+		right = '1'
+		left = '1'
+
 		if (i+1 < N):
-			if (matrix[i+1][j] == '0'):
-				if ((i+1, j) not in traveled):
-					FindEdges(matrix, traveled, (i+1, j), source, steps+1)
+			down = matrix[i+1][j]
 		if (i-1 >= 0):
-			if (matrix[i-1][j] == '0'):
-				if ((i-1, j) not in traveled):
-					FindEdges(matrix, traveled, (i-1, j), source, steps+1)
+			up = matrix[i-1][j]
 		if (j+1 < M):
-			if (matrix[i][j+1] == '0'):
-				if ((i, j+1) not in traveled):
-					FindEdges(matrix, traveled, (i, j+1), source, steps+1)
+			right = matrix[i][j+1]
 		if (j-1 >= 0):
-			if (matrix[i][j-1] == '0'):
-				if ((i, j-1) not in traveled):
-					FindEdges(matrix, traveled, (i, j-1), source, steps+1)
+			left = matrix[i][j-1]
 
+		if (down == '0') and ((i+1, j) not in traveled):
+			FindEdges(matrix, newTraveled, (i+1, j), source)
+		if (up == '0') and ((i-1, j) not in traveled):
+			FindEdges(matrix, newTraveled, (i-1, j), source)
+		if (right == '0') and ((i, j+1) not in traveled):
+			FindEdges(matrix, newTraveled, (i, j+1), source)
+		if (left == '0') and ((i, j-1) not in traveled):
+			FindEdges(matrix, newTraveled, (i, j-1), source)
 
+	elif (vertexIndex != -999) and (vertexIndex != source):
+		Edges.append(Edge(source, vertexIndex, newTraveled))
+	
+	else:
+		down = '1'
+		up = '1'
+		right = '1'
+		left = '1'
+
+		if (i+1 < N):
+			down = matrix[i+1][j]
+		if (i-1 >= 0):
+			up = matrix[i-1][j]
+		if (j+1 < M):
+			right = matrix[i][j+1]
+		if (j-1 >= 0):
+			left = matrix[i][j-1]
+
+		if (down == '0') and ((i+1, j) not in traveled):
+			FindEdges(matrix, newTraveled, (i+1, j), source)
+		elif (up == '0') and ((i-1, j) not in traveled):
+			FindEdges(matrix, newTraveled, (i-1, j), source)
+		elif (right == '0') and ((i, j+1) not in traveled):
+			FindEdges(matrix, newTraveled, (i, j+1), source)
+		elif (left == '0') and ((i, j-1) not in traveled):
+			FindEdges(matrix, newTraveled, (i, j-1), source)
 
 # ---------- MAIN PROGRAM ----------
 Matrix = []					# matrix from file
@@ -180,7 +215,7 @@ Edges = EdgeArray()
 Read("small.txt")
 FindVertices(Matrix)
 for i in range(Vertices.len()):
-	FindEdges(Matrix, [], Vertices.index(i), i, 0)
+	FindEdges(Matrix, [], Vertices.index(i), i)
 
 # debug1
 Vertices.print()
