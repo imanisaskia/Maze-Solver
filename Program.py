@@ -76,6 +76,24 @@ class EdgeArray:
 				list.append(i.source)
 		return list
 
+	# return the weight of edge that connect currentidx to goalidx
+	def findWeight(self, currentidx, goalidx):
+		found=False
+		i=0
+		while(not(found) and i<len(self.data)):
+			if(self.data[i].source == currentidx and self.data[i].target == goalidx):
+				found=True
+			else:
+				i+=1
+		if(not(found)):
+			i=0
+			while(not(found) and i<len(self.data)):
+				if(self.data[i].target == currentidx and self.data[i].source == goalidx):
+					found=True
+				else:
+					i+=1
+		return 	self.data[i].weight()
+
 	# prints source, target, and weight of every Edge
 	def print(self):
 		for i in self.data:
@@ -186,11 +204,79 @@ def FindEdges(matrix, traveled, currentPos, source):
 			FindEdges(matrix, newTraveled, (i, j+1), source)
 		elif (left == '0') and ((i, j-1) not in traveled):
 			FindEdges(matrix, newTraveled, (i, j-1), source)
+					
+# ---------- A STAR ----------
+
+# return third element of list
+def takeFormula(elem):
+	return elem[2]
+
+# return linear distance from vertex to goal h(n) 
+def distance(vertex,goal):
+	return math.sqrt(((vertex[0]-goal[0])**2) + ((vertex[1]-goal[1])**2))
+
+#AStar	
+def AStar(VerticeArray, EdgeArray, aStarSolution):
+	prioqueue = [] 		#prioqueue : current vertex, solution list, f(n), actualcost (g(n))
+	prioqueue.append([Vertices.findIndex(Vertices.index(0)), [], 0, 0]) #append entrance
+
+	final=False
+	#ambil elemen pertama di prioqueue, cek solusi bukan
+	#untuk setiap elemen x di prioqueue hitung nilai f(n) edge (misal ke simpul y) : actualcost i + g(n) x ke y + h(n) dari y ke goal
+	#urutkan di prioqueue berdasarkan f(n)
+	#ulangi hingga solusi
+	while(not(final)):
+		if (prioqueue[0][0] == 1):
+			final=True
+			for j in prioqueue[0][1]:
+				aStarSolution.append(j)
+			aStarSolution.append(prioqueue[0][0])
+		else:										#first element in prioqueue isn't exit
+			solution = prioqueue[0][1].copy()
+			solution.append(prioqueue[0][0])
+			for i in EdgeArray.targetsFrom(prioqueue[0][0]):
+				if(not(i in prioqueue[0][1])):
+					actualcost = prioqueue[0][3] + (EdgeArray.findWeight(prioqueue[0][0],i))	#g(n)
+					fn = actualcost + distance(VerticeArray.index(i),VerticeArray.index(1)) 	#f(n) = g(n) + h(n)
+					prioqueue.append([i, solution, fn, actualcost])
+			prioqueue.pop(0)
+			prioqueue.sort(key=takeFormula)	#sort prioqueue by f(n)
+
+# ---------- BFS ----------
+def BFS(VerticeArray, EdgeArray, BFSSolution):
+	queue = [] 		#queue : simpul hidup, list solusi
+	queue.append([Vertices.findIndex(Vertices.index(0)),[]]) #append entrance
+
+	dikunjungi = []
+	for i in VerticeArray.data:
+		dikunjungi.append(0)
+
+	final=False
+	#ambil elemen pertama di queue, cek solusi bukan
+	#untuk setiap elemen x di queue, ekspan lalu taruh di queue
+	#ulangi hingga solusi
+	while(not(final)):
+		if (queue[0][0] == 1):
+			final=True
+			for j in queue[0][1]:
+				BFSSolution.append(j)
+			BFSSolution.append(queue[0][0])
+		else:										#first element in queue isn't exit
+			dikunjungi[queue[0][0]]=1
+			solution = queue[0][1].copy()
+			solution.append(queue[0][0])
+			for i in EdgeArray.targetsFrom(queue[0][0]):
+				if(dikunjungi[i]==0):
+					queue.append([i, solution])
+			queue.pop(0)
 
 # ---------- MAIN PROGRAM ----------
+import math
+
 Matrix = []					# matrix from file
 N = 0						# number of rows
 M = 0						# number of columns
+
 
 Vertices = VerticeArray()
 '''
@@ -217,6 +303,14 @@ FindVertices(Matrix)
 for i in range(Vertices.len()):
 	FindEdges(Matrix, [], Vertices.index(i), i)
 
-# debug1
-Vertices.print()
-Edges.print()
+#debug A*
+aStarSolution = []	#A* solution list
+
+AStar(Vertices, Edges, aStarSolution)
+print(aStarSolution)
+
+#debug BFS
+BFSSolution = []	#BFS solution list
+
+BFS(Vertices, Edges, BFSSolution)
+print(BFSSolution)
