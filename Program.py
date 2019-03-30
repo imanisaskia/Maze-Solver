@@ -378,7 +378,16 @@ M = 0						# number of columns
 Vertices = VerticeArray()
 Edges = EdgeArray()
 
-source = input("External file: ")
+print()
+print("    __  __                  _____       _                     __  ")
+print("   |  \/  |                / ____|     | |                 _  \ \ ")
+print("   | \  / | __ _ _______  | (___   ___ | |_   _____ _ __  (_)  | |")
+print("   | |\/| |/ _` |_  / _ \  \___ \ / _ \| \ \ / / _ \ '__|      | |")
+print("   | |  | | (_| |/ /  __/  ____) | (_) | |\ V /  __/ |     _   | |")
+print("   |_|  |_|\__,_/___\___| |_____/ \___/|_| \_/ \___|_|    (_)  | |")
+print("                                                              /_/ ")
+print()
+source = input("  Enter the name of the external file that contains the map of the maze: \n\n  ")
 
 Read(source)
 FindVertices(Matrix)
