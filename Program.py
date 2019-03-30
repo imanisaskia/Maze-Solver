@@ -94,6 +94,31 @@ class EdgeArray:
 					i+=1
 		return 	self.data[i].weight()
 
+	# return the path from source to target
+	def findPath(self, currentidx, goalidx):
+		found = False
+		reverse = False
+		i=0
+		while(not(found) and i<len(self.data)):
+			if(self.data[i].source == currentidx and self.data[i].target == goalidx):
+				found = True
+			else:
+				i+=1
+		if(not(found)):
+			i=0
+			while(not(found) and i<len(self.data)):
+				if(self.data[i].target == currentidx and self.data[i].source == goalidx):
+					found = True
+					reverse = True
+				else:
+					i+=1
+		if reverse:
+			reversePath = self.data[i].path.copy()
+			reversePath.reverse()
+			return reversePath
+		else:
+			return self.data[i].path
+
 	# prints source, target, and weight of every Edge
 	def print(self):
 		for i in self.data:
@@ -270,47 +295,104 @@ def BFS(VerticeArray, EdgeArray, BFSSolution):
 					queue.append([i, solution])
 			queue.pop(0)
 
+# create a path tracing a list of vertices
+def TraceRoute(vertices):
+	route = []
+	for i in range(len(vertices) - 1):
+		temp = Edges.findPath(vertices[i], vertices[i+1])
+		for j in temp:
+			route.append(j)
+	return route
+
+# generate visualization of maze and path using PyGame
+def Visualize(matrix, a_star, bfs):
+	os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0,30)
+	pygame.init()
+	pygame.font.init()
+	screen = pygame.display.set_mode((N*15, M*15))
+	pygame.display.set_caption("Maze Solver :D")
+	clock = pygame.time.Clock()
+
+	for i in range(N):
+		for j in range(M):
+			if (Matrix[i][j] == '0'):
+				color = (255,255,255)
+			else:
+				color = (0,0,0)
+
+			pygame.draw.rect(screen, color, (j*15, i*15, 15, 15), 0)
+			pygame.display.update()
+
+	wait = True
+	while wait:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				wait = False
+
+	color = (0,200,0)
+	for step in bfs:
+		i = step[0]
+		j = step[1]
+		pygame.draw.circle(screen, color, (j*15 + 7, i*15 + 7), 5, 0)
+		pygame.display.update()
+		clock.tick(50)
+
+	wait = True
+	while wait:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				wait = False
+
+	color = (50,50,255)
+	for step in a_star:
+		i = step[0]
+		j = step[1]
+		pygame.draw.circle(screen, color, (j*15 + 7, i*15 + 7), 5, 0)
+		pygame.display.update()
+		clock.tick(50)
+
+	while True:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				pygame.quit()
+				quit()
+
 # ---------- MAIN PROGRAM ----------
 import math
+import pygame
+from pygame.locals import *
+import os
 
 Matrix = []					# matrix from file
 N = 0						# number of rows
 M = 0						# number of columns
-
-
 Vertices = VerticeArray()
-'''
-	index 0	-> entrance
-	index 1 -> exit
-
-	Vertices.len()				: returns length of array
-	Vertices.append(Vertex)		: adds a new vertex to Vertices, duplicates are ignored
-	Vertices.index(i)			: returns vertex at index i
-	Vertices.findIndex((i,j))	: returns the index of vertex at position (i,j), or -999 if not found
-	Vertices.print()			: prints list of vertices
-'''
-
 Edges = EdgeArray()
-'''
-	Edges.len()					: returns length of array
-	Edges.append(Edge)			: adds a new edge to Edges, duplicates are ignored
-	Edges.targetsFrom(i)		: returns a list of vertex indexes connected to vertex i
-	Edges.print()				: prints list of edges
-'''
 
-Read("large.txt")
+source = input("External file: ")
+
+Read(source)
 FindVertices(Matrix)
 for i in range(Vertices.len()):
 	FindEdges(Matrix, [], Vertices.index(i), i)
 
-#debug A*
 aStarSolution = []	#A* solution list
-
 AStar(Vertices, Edges, aStarSolution)
-print(aStarSolution)
 
-#debug BFS
 BFSSolution = []	#BFS solution list
-
 BFS(Vertices, Edges, BFSSolution)
-print(BFSSolution)
+
+# visualization
+aStarRoute = TraceRoute(aStarSolution)
+BFSRoute = TraceRoute(BFSSolution)
+
+Visualize(Matrix, aStarRoute, BFSRoute)
