@@ -298,7 +298,7 @@ Edges = EdgeArray()
 	Edges.print()				: prints list of edges
 '''
 
-Read("small.txt")
+Read("large.txt")
 FindVertices(Matrix)
 for i in range(Vertices.len()):
 	FindEdges(Matrix, [], Vertices.index(i), i)
