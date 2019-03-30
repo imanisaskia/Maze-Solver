@@ -179,14 +179,15 @@ def distance(vertex,goal):
 	return math.sqrt(((vertex[0]-goal[0])**2) + ((vertex[1]-goal[1])**2))
 
 #AStar	
-def AStar(VerticeArray, EdgeArray, prioqueue, aStarSolution):
-#ambil elemen pertama di prioqueue, cek solusi bukan
-#untuk setiap elemen x di prioqueue cek nilai f(n) edge (misal ke simpul y) : actualcost i + g(n) x ke y + h(n) dari y ke goal
-#urutkan di prioqueue berdasarkan f(n)
-#ulangi dari langkah 2
+def AStar(VerticeArray, EdgeArray, aStarSolution):
+	prioqueue = [] 		#prioqueue : current vertex, solution list, f(n), actualcost (g(n))
 	prioqueue.append([Vertices.findIndex(Vertices.index(0)), [], 0, 0]) #append entrance
 
 	final=False
+	#ambil elemen pertama di prioqueue, cek solusi bukan
+	#untuk setiap elemen x di prioqueue hitung nilai f(n) edge (misal ke simpul y) : actualcost i + g(n) x ke y + h(n) dari y ke goal
+	#urutkan di prioqueue berdasarkan f(n)
+	#ulangi hingga solusi
 	while(not(final)):
 		if (prioqueue[0][0] == 1):
 			final=True
@@ -232,7 +233,7 @@ Edges = EdgeArray()
 	Edges.print()				: prints list of edges
 '''
 
-Read("small.txt")
+Read("large.txt")
 FindVertices(Matrix)
 for i in range(Vertices.len()):
 	FindEdges(Matrix, [], Vertices.index(i), i, 0)
@@ -242,8 +243,7 @@ Vertices.print()
 Edges.print()
 
 #debug A*
-prioqueue = [] 		#prioqueue : current vertex, solution list, f(n), actualcost (g(n))
 aStarSolution = []	#solution list
 
-AStar(Vertices, Edges, prioqueue, aStarSolution)
+AStar(Vertices, Edges, aStarSolution)
 print(aStarSolution)
