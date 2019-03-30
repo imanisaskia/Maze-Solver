@@ -194,12 +194,13 @@ def AStar(VerticeArray, EdgeArray, prioqueue, aStarSolution):
 				aStarSolution.append(j)
 			aStarSolution.append(prioqueue[0][0])
 		else:										#first element in prioqueue isn't exit
-			prioqueue[0][1].append(prioqueue[0][0])
+			solution = prioqueue[0][1].copy()
+			solution.append(prioqueue[0][0])
 			for i in EdgeArray.targetsFrom(prioqueue[0][0]):
 				if(not(i in prioqueue[0][1])):
 					actualcost = prioqueue[0][3] + (EdgeArray.findWeight(prioqueue[0][0],i))	#g(n)
 					fn = actualcost + distance(VerticeArray.index(i),VerticeArray.index(1)) 	#f(n) = g(n) + h(n)
-					prioqueue.append([i, prioqueue[0][1], fn, actualcost])
+					prioqueue.append([i, solution, fn, actualcost])
 			prioqueue.pop(0)
 			prioqueue.sort(key=takeFormula)	#sort prioqueue by f(n)
 
