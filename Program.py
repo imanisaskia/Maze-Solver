@@ -73,6 +73,24 @@ class EdgeArray:
 				list.append(i.source)
 		return list
 
+	# return the weight of edge that connect currentidx to goalidx
+	def findWeight(self, currentidx, goalidx):
+		found=False
+		i=0
+		while(not(found) and i<len(self.data)):
+			if(self.data[i].source == currentidx and self.data[i].target == goalidx):
+				found=True
+			else:
+				i+=1
+		if(not(found)):
+			i=0
+			while(not(found) and i<len(self.data)):
+				if(self.data[i].target == currentidx and self.data[i].source == goalidx):
+					found=True
+				else:
+					i+=1
+		return 	self.data[i].weight
+
 	# prints source, target, and weight of every Edge
 	def print(self):
 		for i in self.data:
@@ -149,13 +167,49 @@ def FindEdges(matrix, traveled, currentPos, source, steps):
 			if (matrix[i][j-1] == '0'):
 				if ((i, j-1) not in traveled):
 					FindEdges(matrix, traveled, (i, j-1), source, steps+1)
+					
+# ---------- A STAR ----------
 
+# return third element of list
+def takeFormula(elem):
+	return elem[2]
 
+# return linear distance from vertex to goal h(n) 
+def distance(vertex,goal):
+	return math.sqrt(((vertex[0]-goal[0])**2) + ((vertex[1]-goal[1])**2))
+
+#AStar	
+def AStar(VerticeArray, EdgeArray, prioqueue, aStarSolution):
+#ambil elemen pertama di prioqueue, cek solusi bukan
+#untuk setiap elemen x di prioqueue cek nilai f(n) edge (misal ke simpul y) : actualcost i + g(n) x ke y + h(n) dari y ke goal
+#urutkan di prioqueue berdasarkan f(n)
+#ulangi dari langkah 2
+	prioqueue.append([Vertices.findIndex(Vertices.index(0)), [], 0, 0]) #append entrance
+
+	final=False
+	while(not(final)):
+		if (prioqueue[0][0] == 1):
+			final=True
+			for j in prioqueue[0][1]:
+				aStarSolution.append(j)
+			aStarSolution.append(prioqueue[0][0])
+		else:										#first element in prioqueue isn't exit
+			prioqueue[0][1].append(prioqueue[0][0])
+			for i in EdgeArray.targetsFrom(prioqueue[0][0]):
+				if(not(i in prioqueue[0][1])):
+					actualcost = prioqueue[0][3] + (EdgeArray.findWeight(prioqueue[0][0],i))	#g(n)
+					fn = actualcost + distance(VerticeArray.index(i),VerticeArray.index(1)) 	#f(n) = g(n) + h(n)
+					prioqueue.append([i, prioqueue[0][1], fn, actualcost])
+			prioqueue.pop(0)
+			prioqueue.sort(key=takeFormula)	#sort prioqueue by f(n)
 
 # ---------- MAIN PROGRAM ----------
+import math
+
 Matrix = []					# matrix from file
 N = 0						# number of rows
 M = 0						# number of columns
+
 
 Vertices = VerticeArray()
 '''
@@ -185,3 +239,10 @@ for i in range(Vertices.len()):
 # debug1
 Vertices.print()
 Edges.print()
+
+#debug A*
+prioqueue = [] 		#prioqueue : current vertex, solution list, f(n), actualcost (g(n))
+aStarSolution = []	#solution list
+
+AStar(Vertices, Edges, prioqueue, aStarSolution)
+print(aStarSolution)
