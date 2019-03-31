@@ -149,9 +149,12 @@ def FindVertices(matrix):
 
 	for i in range(N):
 		if (matrix[i][0] == '0'):
-			Vertices.append(Vertex((i, 0)))
+			Entrance = (i,0)
 		if (matrix[i][M-1] == '0'):
-			Vertices.append(Vertex((i, M-1)))
+			Exit = (i, M-1)
+
+	Vertices.append(Vertex(Entrance))
+	Vertices.append(Vertex(Exit))
 	
 	for i in range(1, N-1):
 		for j in range(1, M-1):
